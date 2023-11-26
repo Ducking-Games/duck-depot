@@ -10,13 +10,9 @@ async function syncGames(page) {
     console.log(`Syncing page ${page}`)
     for (let res of games) {
         const coverUrl = res.game.cover_url
-        console.log(1)
         const savePath = getFilePath(res.game, baseGameCoverPath)
-        console.log(2)
         await saveAssetToDb(res.game)
-        console.log(3)
         await saveAssetToFs(coverUrl, savePath)
-        console.log(4)
     }
     console.log(`Finished syncing page ${page}`)
     if (games.length) await syncGames(page + 1)

@@ -6,6 +6,14 @@ export async function getGames() {
     return games
 }
 
+export async function paginateGames(page = 1, pageSize = 10) {
+    const games = await prisma.game.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize
+    })
+    return games
+}
+
 export async function saveAssetToDb(game) {
     let userInDb = await prisma.user.findUnique({
         where: {

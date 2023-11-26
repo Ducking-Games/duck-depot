@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("POSTGRES_DB_URL")
 }
 
 model Game {
@@ -29,4 +29,28 @@ model User {
   itchId      Int       @unique
   coverUrl    String
   games Game[]
+}
+
+model DigitalAsset {
+    id            Int      @id @default(autoincrement())
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    type          AssetType
+    name          String
+    tags          String[] // Assuming tags are simple strings, you can change this based on your tagging strategy
+    metadata      Json     // Flexible JSON field for storing various metadata
+    filePath      String   // Path to the stored file
+    thumbnailPath String?  // Optional path to a thumbnail image, if applicable
+
+    // Relationships (if needed)
+    // e.g., linking assets to specific projects or users
+    // projectId     Int?
+    // project       Project? @relation(fields: [projectId], references: [id])
+}
+
+enum AssetType {
+    IMAGE
+    GIF
+    SOUND
+    VIDEO
 }
