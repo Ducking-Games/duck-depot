@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { getServerFilePath } from './filesystem'
 
 export async function getGames() {
     const games = await prisma.game.findMany()
@@ -32,13 +33,15 @@ export async function saveAssetToDb(game) {
 
     if (!assetInDb) {
         console.log(`Adding ${game.title} to the DB`)
+        console.log('localCoverUrl', getServerFilePath(game, process.env.BASE_COVER_PATH))
         await prisma.game.create({
             data: {
                 title: game.title,
                 itchId: game.id,
                 classification: game.classification,
                 shortText: game.short_text || "",
-                userId: userInDb.id
+                userId: userInDb.id,
+                localCoverUrl: getServerFilePath(game, process.env.BASE_COVER_PATH)
             }
         })
     }
