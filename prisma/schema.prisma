@@ -31,6 +31,23 @@ model User {
   games Game[]
 }
 
+model SystemPreference {
+    id          Int    @id @default(autoincrement())
+    key         String @unique
+    value       String
+    type        PreferenceType?  // Optional: Indicates the data type or intended use of the preference
+    description String?          // Optional: Description of what this preference is for
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+enum PreferenceType {
+    STRING
+    NUMBER
+    BOOLEAN
+    JSON
+}
+
 model DigitalAsset {
     id            Int      @id @default(autoincrement())
     createdAt     DateTime @default(now())

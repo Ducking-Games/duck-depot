@@ -1,3 +1,10 @@
+let fs, path
+// this is literally a hack until https://github.com/vercel/next.js/issues/57563 is fixed
+if (process.env.NEXT_RUNTIME === "nodejs") {
+    fs = require('fs')
+    path = require('path')
+}
+
 export const getFilename = (game) => {
     const coverUrl = game.cover_url
     const fileExtension = getFileExtension(coverUrl) || game.fileExtension
@@ -10,9 +17,7 @@ export const getFileExtension = (filePath) => {
     return filePath.split(/[#?]/)[0].split('.').pop().trim();
 }
 
-export const makeDirIfNotExists = (dir) => {
-    const fs = require("fs")
-
+export const makeDirIfNotExists = async (dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true }, (error) => {
             if (error) {
@@ -35,8 +40,6 @@ export const sanitizeForFile = (stringToSanitize) => {
 }
 
 export const saveAssetToFs = async (assetUrl, savePath) => {
-    const fs = require("fs")
-
     if (fs.existsSync(savePath)) return
     const assetRes = await fetch(assetUrl)
     const arrayBuffer = await assetRes.arrayBuffer()
@@ -44,9 +47,8 @@ export const saveAssetToFs = async (assetUrl, savePath) => {
     fs.writeFile(savePath, buffer, () => console.log(`finished saving image - ${savePath}`))
 }
 
-export const getFilePath = (game, basePath) => {
-    const path = require("path")
-    const fileName = getFilename(game)
+export const getFilePath = async (game, basePath) => {
+    const fileName = await getFilename(game)
     const filePath = path.join(basePath, fileName)
     return filePath.replace(/\\/g, '/')
 }
@@ -54,4 +56,36 @@ export const getFilePath = (game, basePath) => {
 export const getServerFilePath = (game, basePath) => {
     const filePath = getFilePath(game, basePath)
     return `/${filePath.split('public/')[1]}`
+}
+
+export const listDirectory = async (filePath = '/') => {
+    const fileNames = fs.readdirSync(filePath, { withFileTypes: true })
+    const files = await Promise.all(fileNames.map(async (file) => {
+        const { name: fileName } = file
+        const extension = path.extname(fileName)
+        if (file.isDirectory || ['.jpg', '.png', '.svg'].includes(extension)) {
+            return {
+                name: fileName,
+                path: path.join(filePath, fileName),
+                isDirectory: file.isDirectory(),
+                extension: extension,
+                image: file.isDirectory ? '/folder.png' : await getBinaryImage(path.join(filePath, fileName))
+            }
+        }
+        return null
+    }))
+    console.log(files)
+    const filteredFiles = await files.filter((file) => file !== null)
+    return filteredFiles
+}
+
+export const getBinaryImage = async (filePath) => {
+    const imagePath = path.resolve(filePath);
+    if (!fs.existsSync(imagePath)) {
+        return 'unknown.jpg'
+    }
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64Image = new Buffer(imageBuffer).toString('base64');
+    const dataSrc = `data:image/jpeg;base64,${base64Image}`;
+    return dataSrc
 }
