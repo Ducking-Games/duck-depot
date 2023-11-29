@@ -48,7 +48,7 @@ enum PreferenceType {
     JSON
 }
 
-model DigitalAsset {
+model Asset {
     id            Int      @id @default(autoincrement())
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
@@ -56,7 +56,8 @@ model DigitalAsset {
     name          String
     tags          String[] // Assuming tags are simple strings, you can change this based on your tagging strategy
     metadata      Json     // Flexible JSON field for storing various metadata
-    filePath      String   // Path to the stored file
+    extension     String   // File extension (e.g., jpg, png, gif, mp3, mp4, etc.)
+    filePath      String  @unique   // Path to the stored file
     thumbnailPath String?  // Optional path to a thumbnail image, if applicable
 
     // Relationships (if needed)

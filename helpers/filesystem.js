@@ -63,29 +63,32 @@ export const listDirectory = async (filePath = '/') => {
     const files = await Promise.all(fileNames.map(async (file) => {
         const { name: fileName } = file
         const extension = path.extname(fileName)
-        if (file.isDirectory || ['.jpg', '.png', '.svg'].includes(extension)) {
+        if (file.isDirectory() || ['.jpg', '.png', '.svg'].includes(extension)) {
             return {
                 name: fileName,
                 path: path.join(filePath, fileName),
                 isDirectory: file.isDirectory(),
-                extension: extension,
-                image: file.isDirectory ? '/folder.png' : await getBinaryImage(path.join(filePath, fileName))
+                extension: extension
             }
         }
         return null
     }))
-    console.log(files)
     const filteredFiles = await files.filter((file) => file !== null)
     return filteredFiles
 }
 
 export const getBinaryImage = async (filePath) => {
     const imagePath = path.resolve(filePath);
-    if (!fs.existsSync(imagePath)) {
-        return 'unknown.jpg'
+    try {
+        if (!fs.existsSync(imagePath)) {
+            return '/unknown.jpg'
+        }
+        const imageBuffer = fs.readFileSync(imagePath);
+        const base64Image = new Buffer(imageBuffer).toString('base64');
+        const dataSrc = `data:image/jpeg;base64,${base64Image}`;
+        return dataSrc
+    } catch(error) {
+        console.error(`Failed to get binary image: ${error.message}`)
     }
-    const imageBuffer = fs.readFileSync(imagePath);
-    const base64Image = new Buffer(imageBuffer).toString('base64');
-    const dataSrc = `data:image/jpeg;base64,${base64Image}`;
-    return dataSrc
+
 }
