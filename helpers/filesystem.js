@@ -18,6 +18,7 @@ export const getFileExtension = (filePath) => {
 }
 
 export const makeDirIfNotExists = async (dir) => {
+    if (!dir) return
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true }, (error) => {
             if (error) {
@@ -53,8 +54,8 @@ export const getFilePath = async (game, basePath) => {
     return filePath.replace(/\\/g, '/')
 }
 
-export const getServerFilePath = (game, basePath) => {
-    const filePath = getFilePath(game, basePath)
+export const getServerFilePath = async (game, basePath) => {
+    const filePath = await getFilePath(game, basePath)
     return `/${filePath.split('public/')[1]}`
 }
 
