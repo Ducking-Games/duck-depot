@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { createAssetIfNotExists, getAssetByPath } from "@/helpers/asset"
 
-
-
 const checkIfAssetExists = async (file) => {
     const asset = await getAssetByPath(file)
     return asset !== null

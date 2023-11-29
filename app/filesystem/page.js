@@ -39,7 +39,6 @@ export default async function Filesystem({searchParams}) {
                             {
                                 file?.isDirectory ? <Folder />
                                 : <Preview imagePath={file.path} />
-                                
                             }
                         </File>
                     ))
