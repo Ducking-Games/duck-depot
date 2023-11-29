@@ -1,5 +1,6 @@
 "use server"
 import prisma from '@/lib/prisma'
+import { revalidatePath } from 'next/cache'
 
 export async function getAssets() {
     const assets = await prisma.asset.findMany()
@@ -35,5 +36,6 @@ export async function createAssetIfNotExists(file) {
             filePath: file.path,
         }
     })
+    revalidatePath('/assets')
     return asset
 }
